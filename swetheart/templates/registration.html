@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container">
+        <form method="post">
+          <div class="form-group">
+            <label for="user_name">User name</label>
+            <input type="name" name="user_name" class="form-control" id="user_name">
+          </div>
+          <div class="form-group">
+            <label for="user_password">Password</label>
+            <input type="password" name="user_password" class="form-control" id="user_password">
+            <label for="user_password_2">Submit password</label>
+            <input type="password" name="user_password_2" class="form-control" id="user_password_2">
+          </div>
+          <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+    </div>
+{% endblock %}

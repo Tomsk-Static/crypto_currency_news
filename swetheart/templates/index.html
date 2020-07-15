@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+
+{% block body %}
+    <div class="container all_currency">
+
+      {% for key, value in card_dict.items() %}
+
+        <div class="card my-3">
+            <h4 class="card-header">
+              <img src={{ value.img }}>
+              {{ value.name }}/
+              <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@c956b3ae476909346a0480861ffd7a673a992032/svg/color/usd.svg">
+              USD
+            </h4>
+            <div class="row">
+              <div class="col-lg-2">
+                <div >
+                  <div class="card-body">
+                    <h5 class="card-title" id= {{ key }}>0000000</h5>
+                    <span>24h Change: </span>
+                    <span class="card-text" id= {{ "percent_" + key }}>000000</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-10">
+                <div>
+                  <div class="card-body">
+                    <h5 id= {{ "news_title_" + key }} ></h5>
+                    <div class="card card-body" id= {{ "news_body_" + key }}></div>
+                    <a href="#" class="btn btn-primary mt-2" id= {{ "news_url_" + key }}>Read full text</a>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+
+      {% endfor %}
+
+    </div>
+
+
+
+
+
+    <script>
+
+        function show()
+        {
+            $.ajax({
+                url: "/stonks",
+                cache: false,
+
+                success: function(data){
+                    $("#btc").html(data.BTCUSDT.price);
+                    $("#eth").html(data.ETHUSDT.price);
+                    $("#xrp").html(data.XRPUSDT.price);
+                    $("#ltc").html(data.LTCUSDT.price);
+
+                    if (data.BTCUSDT.percent24[0] == '+') {
+                        $("#percent_btc").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_btc").addClass("text-danger");
+                    }
+
+                    if (data.ETHUSDT.percent24[0] == '+') {
+                        $("#percent_eth").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_eth").addClass("text-danger");
+                    }
+
+                    if (data.LTCUSDT.percent24[0] == '+') {
+                        $("#percent_ltc").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_ltc").addClass("text-danger");
+                    }
+
+                    if (data.XRPUSDT.percent24[0] == '+') {
+                        $("#percent_xrp").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_xrp").addClass("text-danger");
+                    }
+
+                    $("#percent_btc").html(data.BTCUSDT.percent24);
+                    $("#percent_eth").html(data.ETHUSDT.percent24);
+                    $("#percent_xrp").html(data.XRPUSDT.percent24);
+                    $("#percent_ltc").html(data.LTCUSDT.percent24);
+                }
+            });
+        }
+
+          function get_news(flag, id)
+        {
+            $.ajax({
+                url: '/get_news/' + flag,
+                cashe: false,
+                success: function(data){
+                    $('#news_title' + id).html(data.title);
+                    $('#news_body' + id).html(data.body);
+                    $('#news_url' + id).attr("href", data.url);
+                }
+
+
+            });
+
+        }
+
+        $(document).ready(function(){
+            show();
+            #get_news('bitcoin', '_btc');
+            get_news('etherium', '_eth');
+            get_news('litecoin', '_ltc');
+            get_news('ripple cryptocurrency', '_xrp');
+            setInterval('show()',20000);
+        });
+
+
+
+
+    </script>
+
+{% endblock %}

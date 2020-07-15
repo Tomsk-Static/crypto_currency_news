@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <div class="container">
+        <h2>Collect</h2>
+        <form method="post">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="x" id="btc" name="btc">
+              <label class="form-check-label" for="btc">
+                Bitcoin
+              </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="x" id="eth" name="eth">
+              <label class="form-check-label" for="eth">
+                Etherium
+              </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="x" id="ltc" name="ltc">
+              <label class="form-check-label" for="ltc">
+                Litcoin
+              </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="x" id="xrp" name="xrp">
+              <label class="form-check-label" for="xrp">
+                Ripple
+              </label>
+            </div>
+          <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+    </div>
+
+{% endblock %}
