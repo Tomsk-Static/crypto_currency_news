@@ -8,49 +8,59 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from swetheart import db, app
 from swetheart.models import User, Crypto
 
-from swetheart.go_data import card_dict
+from swetheart.go_data import all_crypto_dict
+
+
+def get_crypto_dict():
+    if current_user.is_authenticated:
+        user = User.query.filter_by(id=current_user.get_id()).first()
+        list_crypto = [crypt.crypto_name for crypt in user.my_crypto]
+        new_dict = {key: all_crypto_dict[key] for key in list_crypto}
+    else:
+        new_dict = {key: all_crypto_dict[key] for key in ['btc', 'eth', 'ltc', 'xrp']}
+
+    return new_dict
 
 
 @app.route('/', methods=['GET'])
 def index():
-    if current_user.is_authenticated:
-        user = User.query.filter_by(id=current_user.get_id()).first()
-        list_crypto = [crypt.crypto_name for crypt in user.my_crypto]
-        new_card_dict = {key: card_dict[key] for key in list_crypto}
-    else:
-        new_card_dict = card_dict
+    new_card_dict = get_crypto_dict()
     return render_template('index.html', card_dict=new_card_dict)
 
 
 @app.route('/stonks', methods=['GET', 'POST'])
 def stonks():
-    price = {'ETHUSDT': {'price': '', 'percent24': ''},
-             'BTCUSDT': {'price': '', 'percent24': ''},
-             'LTCUSDT': {'price': '', 'percent24': ''},
-             'XRPUSDT': {'price': '', 'percent24': ''},
-             }
+    price = get_crypto_dict()
     price_url = 'https://api.binance.com/api/v3/ticker/24hr'
     params = {'symbol': ''}
-    for currency in price:
-        params['symbol'] = currency
+    for curr_id, val in price.items():
+        params['symbol'] = curr_id.upper() + 'USDT'
         req = requests.get(price_url, params=params).json()
         if req.get('code') == -1003:
             return {'error': -1003}
-        price[currency]['price'] = req['lastPrice'][:7] + '$'
-        price[currency]['percent24'] = re.sub(r'^\d.{4}', '+' + req['priceChangePercent'][:5],
+        price[curr_id]['price'] = req['lastPrice'][:7] + '$'
+        price[curr_id]['percent24'] = re.sub(r'^\d.{4}', '+' + req['priceChangePercent'][:5],
                                               req['priceChangePercent'][:6]) + '%'
     return price
 
-@app.route('/get_news/<jsdata>')
-def get_news(jsdata):
-    news = find_news(jsdata)
-    return news
 
-def find_news(flag):
+@app.route('/get_news')
+def get_news():
+    return all_crypto_dict
+
+
+@app.route('/refresh_news')
+def refresh_news():
     news_api = NewsApiClient(api_key='a4c854576fbc472e8f06265c455e1ae6')
-    news = news_api.get_everything(q=flag, language='en')
-    news = list(filter(lambda x: x['description'], news['articles']))
-    return {'title': news[0]['title'], 'body': news[0]['description'], 'url': news[0]['url']}
+    crypto = get_crypto_dict()
+    for curr_id, value in crypto.items():
+        news = news_api.get_everything(q=value['question'], language='en')
+        news = list(filter(lambda x: x['description'], news['articles']))
+        value['news_title'] = news[0]['title']
+        value['news_description'] = news[0]['description']
+        value['news_url'] = news[0]['url']
+    return ''
+
 
 
 @app.route('/registration', methods=['GET', 'POST'])
@@ -134,7 +144,7 @@ def collect_crypto():
             user.my_crypto.append(c)
         db.session.commit()
         return redirect(url_for('index'))
-    return render_template('collect_crypto.html')
+    return render_template('collect_crypto.html', crypto=all_crypto_dict)
 
 
 @app.after_request

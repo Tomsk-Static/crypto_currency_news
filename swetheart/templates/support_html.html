@@ -114,3 +114,84 @@
               </div>
             </div>
         </div>
+
+<script>
+
+        function show()
+        {
+            $.ajax({
+                url: "/stonks",
+                cache: false,
+
+                success: function(data){
+
+                    $("#btc").html(data.BTCUSDT.price);
+                    $("#eth").html(data.ETHUSDT.price);
+                    $("#xrp").html(data.XRPUSDT.price);
+                    $("#ltc").html(data.LTCUSDT.price);
+
+                    if (data.BTCUSDT.percent24[0] == '+') {
+                        $("#percent_btc").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_btc").addClass("text-danger");
+                    }
+
+                    if (data.ETHUSDT.percent24[0] == '+') {
+                        $("#percent_eth").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_eth").addClass("text-danger");
+                    }
+
+                    if (data.LTCUSDT.percent24[0] == '+') {
+                        $("#percent_ltc").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_ltc").addClass("text-danger");
+                    }
+
+                    if (data.XRPUSDT.percent24[0] == '+') {
+                        $("#percent_xrp").addClass("text-success");
+                    }
+                    else {
+                        $("#percent_xrp").addClass("text-danger");
+                    }
+
+                    $("#percent_btc").html(data.BTCUSDT.percent24);
+                    $("#percent_eth").html(data.ETHUSDT.percent24);
+                    $("#percent_xrp").html(data.XRPUSDT.percent24);
+                    $("#percent_ltc").html(data.LTCUSDT.percent24);
+                }
+            });
+        }
+
+          function get_news(flag, id)
+        {
+            $.ajax({
+                url: '/get_news/' + flag,
+                cashe: false,
+                success: function(data){
+                    $('#news_title' + id).html(data.title);
+                    $('#news_body' + id).html(data.body);
+                    $('#news_url' + id).attr("href", data.url);
+                }
+
+
+            });
+
+        }
+
+        $(document).ready(function(){
+            show();
+            get_news('bitcoin', '_btc');
+            get_news('etherium', '_eth');
+            get_news('litecoin', '_ltc');
+            get_news('ripple cryptocurrency', '_xrp');
+            setInterval('show()',20000);
+        });
+
+
+
+
+    </script>
